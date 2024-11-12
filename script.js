@@ -57,28 +57,63 @@ function simulateDriverLocation() {
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCqJyVR0OkWJLysPR02vurdq8deqX7RjGQ",
-    authDomain: "dmcabs0202-default-rtdb.asia-southeast1.firebasedatabase.app",
-    databaseURL: "https://dmcabs0202-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "dmcabs0202",
+  authDomain: "dmcabs0202.firebaseapp.com",
+  databaseURL: "https://dmcabs0202-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dmcabs0202",
+  storageBucket: "dmcabs0202.firebasestorage.app",
+  messagingSenderId: "456338813399",
+  appId: "1:456338813399:web:27f2edfa7e8c85f0105b92"
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+const app = firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+const database = firebase.database(app);
 
-// Function to listen for high alcohol level alerts
-function listenForAlerts() {
-    const alcoholRef = database.ref("/sensors/alcoholLevel");
+// Request permission for push notifications
+messaging.requestPermission().then(() => {
+    console.log("Notification permission granted.");
+    return messaging.getToken();
+}).then(token => {
+    console.log("FCM Token: ", token);
 
-    alcoholRef.on("value", (snapshot) => {
-        const level = snapshot.val();
-        if (level > 120) {  // Match the threshold in ESP32 code
-            alert("Warning: High alcohol level detected! Engine locked.");
-        }
+    // Optionally, you can send this token to your server or Firebase for later use
+}).catch(error => {
+    console.error("Error getting permission for notifications", error);
+});
+
+// Handle incoming messages
+messaging.onMessage((payload) => {
+    console.log('Message received. ', payload);
+    // Show a notification
+    new Notification(payload.notification.title, {
+        body: payload.notification.body,
+        icon: payload.notification.icon
     });
-}
+});
 
-// Call the function to start listening
-listenForAlerts();
+// Listen for changes to alcohol level in Firebase
+const alcoholRef = database.ref("/sensors/alcoholLevel");
+
+alcoholRef.on("value", (snapshot) => {
+    const alcoholLevel = snapshot.val();
+    if (alcoholLevel > 120) {  // Trigger notification when the threshold is crossed
+        // Send a push notification via FCM
+        messaging.send({
+            notification: {
+                title: "Warning!",
+                body: `High alcohol level detected: ${alcoholLevel}`,
+                icon: "/path/to/icon.png"  // You can provide the path to an icon
+            },
+            to: "your-fcm-token"  // You can target a specific device or topic
+        }).then(response => {
+            console.log("Notification sent successfully:", response);
+        }).catch(error => {
+            console.error("Error sending notification:", error);
+        });
+    }
+});
+
+
 
 
