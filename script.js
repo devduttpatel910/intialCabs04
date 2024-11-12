@@ -54,7 +54,7 @@ function simulateDriverLocation() {
 
 //new lines 
 
-// Add Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCqJyVR0OkWJLysPR02vurdq8deqX7RjGQ",
     authDomain: "dmcabs0202-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -65,18 +65,20 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
-// Listen for notifications in the Firebase database
-function listenForNotifications() {
-    const alertsRef = database.ref("/alerts/notification");
 
-    alertsRef.on("value", (snapshot) => {
-        const message = snapshot.val();
-        if (message) {
-            alert(`Notification: ${message}`);
+// Function to listen for high alcohol level alerts
+function listenForAlerts() {
+    const alcoholRef = database.ref("/sensors/alcoholLevel");
+
+    alcoholRef.on("value", (snapshot) => {
+        const level = snapshot.val();
+        if (level > 120) {  // Match the threshold in ESP32 code
+            alert("Warning: High alcohol level detected! Engine locked.");
         }
     });
 }
 
-// Call the function to start listening for notifications
-listenForNotifications();
+// Call the function to start listening
+listenForAlerts();
+
 
