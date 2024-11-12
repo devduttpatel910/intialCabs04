@@ -51,3 +51,32 @@ function simulateDriverLocation() {
     driverMarker = L.marker([driverLat, driverLng], { color: 'blue' }).addTo(map)
         .bindPopup("Driver is nearby").openPopup();
 }
+
+//new lines 
+
+// Add Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCqJyVR0OkWJLysPR02vurdq8deqX7RjGQ",
+    authDomain: "dmcabs0202-default-rtdb.asia-southeast1.firebasedatabase.app",
+    databaseURL: "https://dmcabs0202-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dmcabs0202",
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+// Listen for notifications in the Firebase database
+function listenForNotifications() {
+    const alertsRef = database.ref("/alerts/notification");
+
+    alertsRef.on("value", (snapshot) => {
+        const message = snapshot.val();
+        if (message) {
+            alert(`Notification: ${message}`);
+        }
+    });
+}
+
+// Call the function to start listening for notifications
+listenForNotifications();
+
