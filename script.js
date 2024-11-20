@@ -54,65 +54,44 @@ function simulateDriverLocation() {
 
 //new lines 
 
-// Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyCqJyVR0OkWJLysPR02vurdq8deqX7RjGQ",
-  authDomain: "dmcabs0202.firebaseapp.com",
-  databaseURL: "https://dmcabs0202-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dmcabs0202",
-  storageBucket: "dmcabs0202.firebasestorage.app",
-  messagingSenderId: "456338813399",
-  appId: "1:456338813399:web:27f2edfa7e8c85f0105b92"
-};
+// Reference the alcohol level node in Firebase
+const alcoholLevelRef = db.ref('alcoholLevel');
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
-const database = firebase.database(app);
+// Set a threshold for notifications
+const threshold = 500;
 
-// Request permission for push notifications
-messaging.requestPermission().then(() => {
-    console.log("Notification permission granted.");
-    return messaging.getToken();
-}).then(token => {
-    console.log("FCM Token: ", token);
-
-    // Optionally, you can send this token to your server or Firebase for later use
-}).catch(error => {
-    console.error("Error getting permission for notifications", error);
-});
-
-// Handle incoming messages
-messaging.onMessage((payload) => {
-    console.log('Message received. ', payload);
-    // Show a notification
-    new Notification(payload.notification.title, {
-        body: payload.notification.body,
-        icon: payload.notification.icon
-    });
-});
-
-// Listen for changes to alcohol level in Firebase
-const alcoholRef = database.ref("/sensors/alcoholLevel");
-
-alcoholRef.on("value", (snapshot) => {
+alcoholLevelRef.on('value', snapshot => {
     const alcoholLevel = snapshot.val();
-    if (alcoholLevel > 120) {  // Trigger notification when the threshold is crossed
-        // Send a push notification via FCM
-        messaging.send({
-            notification: {
-                title: "Warning!",
-                body: `High alcohol level detected: ${alcoholLevel}`,
-                icon: "/path/to/icon.png"  // You can provide the path to an icon
-            },
-            to: "your-fcm-token"  // You can target a specific device or topic
-        }).then(response => {
-            console.log("Notification sent successfully:", response);
-        }).catch(error => {
-            console.error("Error sending notification:", error);
-        });
+    console.log("Alcohol Level: ", alcoholLevel);
+
+    // Update the map with the alcohol level
+    alert(`Alcohol Level: ${alcoholLevel}`);
+
+    // Check if the level exceeds the threshold
+    if (alcoholLevel > threshold) {
+        sendNotification("High Alcohol Level Detected!");
     }
 });
+
+// Send a browser notification
+function sendNotification(message) {
+    if (Notification.permission === "granted") {
+        new Notification("DMCabs Services", { body: message });
+    } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                new Notification("DMCabs Services", { body: message });
+            }
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
+});
+
 
 
 
