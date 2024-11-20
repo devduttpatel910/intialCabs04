@@ -14,9 +14,24 @@
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="script.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyARNvsfeaO4qnlsxTU0ts0dYzo15k44YKg",
+  authDomain: "palchol.firebaseapp.com",
+  databaseURL: "https://palchol-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "palchol",
+  storageBucket: "palchol.firebasestorage.app",
+  messagingSenderId: "474802254344",
+  appId: "1:474802254344:web:1ed97faaa247e7e23b97bd"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+</script>
+
 
 </body>
 </html>
