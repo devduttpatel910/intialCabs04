@@ -75,9 +75,9 @@ alcoholLevelRef.on('value', snapshot => {
 
 // Send a browser notification
 function sendNotification(message) {
-    if (Notification.permission === "denied") {
+    if (Notification.permission === "granted") {
         new Notification("DMCabs Services", { body: message });
-    } else if (Notification.permission !== "granted") {
+    } else if (Notification.permission !== "denied") {
         Notification.requestPermission().then(permission => {
             if (permission === "granted") {
                 new Notification("DMCabs Services", { body: message });
